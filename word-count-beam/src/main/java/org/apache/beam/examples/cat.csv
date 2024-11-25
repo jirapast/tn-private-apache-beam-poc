@@ -1,0 +1,54 @@
+Aggregation
+    ApproximateQuantilesExample, core transform
+    CoGroupByKeyExample, core transform
+    CombineExample, core transform
+        CombineWithContext
+        GroupByKey
+    CountExample, core transform
+    DistinctExample, quickstart
+    GroupIntoBatchesExample, quickstart
+        HllCount
+    LatestExample, core transform
+    MaxExample, core transform
+    MeanExample, core transform
+    MinExample, core transform
+    SampleExample, core transform
+    SumExample, core transform
+    TopExample, core transform
+Other
+    CreateExample
+        Flatten
+        PAssert
+    ViewExample
+    WindowExample
+
+CountPerKeyExample, core transform
+Element-wise
+        Filter
+    FlatMapElementsExample, quickstart
+    KeysExample, core transform
+    KvSwapExample, core transform
+    MapElementsExample, core transform
+    PartitionExample, core transform
+    RegexExample, core transform
+        Reify
+    ToStringExample, core transform
+    ValuesExample, core transform
+        WithKeys
+        WithTimestamps
+
+MaxPerKeyExample, core transform
+MeanPerKeyExample, core transform
+MinimalWordCount, core transform
+MinPerKeyExample, core transform
+SumPerKeyExample, core transform
+
+WindowedWordCount, quickstart
+WordCount, quickstart
+DebuggingWordCount, quickstart
+KafkaWordCountJson, quickstart
+
+KafkaPassengerCountJson, emulated data src
+KafkaWordCountAvro, emulated data src
+
+KafkaStreaming, streaming
