@@ -68,4 +68,5 @@ public class MinExample {
       c.output(c.element());
     }
   }
+
 }

@@ -48,7 +48,9 @@ import org.apache.beam.sdk.values.PCollection;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 // beam-playground:
 //   name: Window
 //   description: Demonstration of Window transform usage.
@@ -65,7 +67,7 @@ import org.slf4j.LoggerFactory;
 //     - timestamps
 //     - windows
 
-public class WindowExample {
+public class WindowExample2 {
   public static void main(String[] args) {
     PipelineOptions options = PipelineOptionsFactory.create();
     Pipeline pipeline = Pipeline.create(options);
@@ -87,17 +89,33 @@ public class WindowExample {
 
     PCollection<Double> items = pipeline.apply(Create.timestamped(inputData, timestamps));
 
+    for (int i = 0; i < timestamps.size(); i++) { 
+      Instant processTime = Instant.now();
+      // ZonedDateTime pzonedDateTime = processTime.atZone(ZoneId.systemDefault());
+      // String ptimeString = pzonedDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+
+      Instant eventTime = processTime.minus(timestamps.get(i));
+      // ZonedDateTime ezonedDateTime = processTime.atZone(ZoneId.systemDefault());
+      // String etimeString = ezonedDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+
+      long durationMillis = (processTime.getMillis() - eventTime.getMillis()) / 1000;
+
+      System.out.println(i + "___" + processTime + "___" + eventTime + "__" + durationMillis);
+
+      sleepWithoutException(1000);
+    }
+
     PCollection<Double> windowedItems =
         items.apply(Window.into(FixedWindows.of(Duration.standardSeconds(20))));
 
-    windowedItems.apply(ParDo.of(
-      new DoFn<Double, String>() {
-        @ProcessElement
-        public void processElement(@Element Double value, OutputReceiver<String> out, @Timestamp Instant timestamp, BoundedWindow window) {
-          String result = value + ", " + timestamp.toString() + ", " + window.toString();
-          System.out.println(">>> " + result);
-        }
-      }));
+    // windowedItems.apply(ParDo.of(
+    //   new DoFn<Double, String>() {
+    //     @ProcessElement
+    //     public void processElement(@Element Double value, OutputReceiver<String> out, @Timestamp Instant timestamp, BoundedWindow window) {
+    //       String result = value + ", " + timestamp.toString() + ", " + window.toString();
+    //       System.out.println(">>> " + result);
+    //     }
+    //   }));
     
     // x.apply("ConvertToString", MapElements.into(TypeDescriptors.strings()).via(Object::toString))
     // .apply(TextIO.write().to("window-output")) ;
@@ -110,12 +128,21 @@ public class WindowExample {
     // PCollection<Double> y = windowedItems.apply(Max.<Double>globally().withoutDefaults());
     // y.apply(ParDo.of(new LogOutput<>(">>>> ")));
 
-    // System.out.print("----------------------------------------------------------------------");
-    // PCollection<Double> z = windowedItems.apply(Sum.<Double>doublesGlobally().withoutDefaults());
-    // z.apply(ParDo.of(new LogOutput<>(">>>> ")));
+    System.out.print("----------------------------------------------------------------------");
+    PCollection<Double> z = windowedItems.apply(Sum.<Double>doublesGlobally().withoutDefaults());
+    z.apply(ParDo.of(new LogOutput<>(">>>> ")));
 
     pipeline.run();
   }
+
+  public static void sleepWithoutException(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            // Handle interruption (e.g., log it or ignore)
+            System.out.println("Thread was interrupted");
+        }
+    }
 
   static class LogOutput<T> extends DoFn<T, T> {
     private static final Logger LOG = LoggerFactory.getLogger(LogOutput.class);
