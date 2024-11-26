@@ -1,0 +1,165 @@
+// /*
+//  * Licensed to the Apache Software Foundation (ASF) under one
+//  * or more contributor license agreements.  See the NOTICE file
+//  * distributed with this work for additional information
+//  * regarding copyright ownership.  The ASF licenses this file
+//  * to you under the Apache License, Version 2.0 (the
+//  * "License"); you may not use this file except in compliance
+//  * with the License.  You may obtain a copy of the License at
+//  *
+//  *     http://www.apache.org/licenses/LICENSE-2.0
+//  *
+//  * Unless required by applicable law or agreed to in writing, software
+//  * distributed under the License is distributed on an "AS IS" BASIS,
+//  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  * See the License for the specific language governing permissions and
+//  * limitations under the License.
+//  */
+// package org.apache.beam.examples;
+
+// // import java.time.Instant;
+// import java.time.Duration;
+// import org.joda.time.Instant;
+// import java.util.Arrays;
+// import java.util.List;
+// import java.util.ArrayList;
+// import org.apache.beam.sdk.Pipeline;
+// import org.apache.beam.sdk.options.PipelineOptions;
+// import org.apache.beam.sdk.options.PipelineOptionsFactory;
+// import org.apache.beam.sdk.transforms.Count;
+// import org.apache.beam.sdk.transforms.Create;
+// import org.apache.beam.sdk.transforms.DoFn;
+// import org.apache.beam.sdk.transforms.Mean;
+// import org.apache.beam.sdk.transforms.Sum;
+// import org.apache.beam.sdk.transforms.WithTimestamps;
+// import org.apache.beam.sdk.values.TimestampedValue;
+// import org.apache.beam.sdk.transforms.ParDo;
+// import org.apache.beam.sdk.transforms.windowing.FixedWindows;
+// import org.apache.beam.sdk.transforms.windowing.SlidingWindows;
+// import org.apache.beam.sdk.transforms.windowing.Window;
+// import org.apache.beam.sdk.values.KV;
+// import org.apache.beam.sdk.values.PCollection;
+// // import org.joda.time.Duration;
+// import org.slf4j.Logger;
+// import org.slf4j.LoggerFactory;
+
+// // beam-playground:
+// //   name: Window
+// //   description: Demonstration of Window transform usage.
+// //   multifile: false
+// //   default_example: false
+// //   context_line: 54
+// //   categories:
+// //     - Core Transforms
+// //     - Windowing
+// //   complexity: BASIC
+// //   tags:
+// //     - transforms
+// //     - strings
+// //     - timestamps
+// //     - windows
+
+// public class WindowExample {
+
+//   public static void sleepWithoutException(long milliseconds) {
+//         try {
+//             Thread.sleep(milliseconds);
+//         } catch (InterruptedException e) {
+//             // Handle interruption (e.g., log it or ignore)
+//             System.out.println("Thread was interrupted");
+//         }
+//     }
+
+//   public static void main(String[] args) {
+//     PipelineOptions options = PipelineOptionsFactory.create();
+//     Pipeline pipeline = Pipeline.create(options);
+
+//     // [START main_section]
+//     // Create some input data with timestamps
+//     List<Double> inputData = Arrays.asList(5.0, 9.0, 7.0, 8.0, 3.0, 4.0, 3.0, 4.0, 3.0);
+
+//     List<Long> lag = Arrays.asList(8L, 5L, 4L, 4L, 6L, 1L, 2L, 2L, 9L);
+
+//     System.out.println("--value---event time ---- proc time-----");
+
+//     List<TimestampedValue<Double>> timestampedValue = new ArrayList<>();
+
+//     for (int i = 0; i < lag.size(); i++) { 
+//       Instant processTime = Instant.now();
+//       Instant eventTime = processTime.minus(lag.get(i) * 1000);
+//       // long durationMillis = (processTime.getMillis() - eventTime.getMillis()) / 1000;
+//       // System.out.println(i + "___" + eventTime + "___" + processTime + "__" + durationMillis);
+
+
+//       timestampedValue.add(TimestampedValue.of(inputData.get(i), eventTime.get(i)));
+
+
+//       // sleepWithoutException(1000);
+//     }
+
+//   System.out.println("-------------------------------------");
+
+
+//   PCollection<Double> timestampedValuedPC = pipeline.apply(Create.timestamped(timestampedValue));
+
+//   // PCollection<Double> windowedTimestampedValuedPC = timestampedValuedPC.apply(Window.into(SlidingWindows.of(Duration.standardSeconds(2))));
+
+//   // PCollection<Double> x = windowedTimestampedValuedPC.apply(Sum.doublesGlobally().withoutDefaults());
+
+//   // x.apply(ParDo.of(new LogOutput<>("---")));
+
+
+
+//   // nowitem.apply(ParDo.of(new DoFn<Double, Void>() {
+//   //     @ProcessElement
+//   //     public void processElement(ProcessContext context) {
+//   //         // Access the element and its associated window information
+//   //         Double element = context.element();
+//   //         org.joda.time.Instant timestamp = context.timestamp();
+//   //         // Window windows = context.window();
+//   //         // org.apache.beam.sdk.transforms.windowing.Window window = context.window();
+//   //         // You can access window-related information in different ways depending on your use case
+//   //         System.out.println("Element: " + element + ", Timestamp: " + timestamp);
+//   //     }
+//   // }));
+
+//   // timestampedValuedPC.apply(ParDo.of(new DoFn<Double, Void>() {
+//   //     @ProcessElement
+//   //     public void processElement(ProcessContext context) {
+//   //         Double element = context.element();
+//   //         // Instant timestamp = context.timestamp();
+//   //         String window = context.window().toString();
+//   //         // System.out.println("Element: " + element + ", Timestamp: " + timestamp);
+//   //         System.out.println("Element: " + element + ", Timestamp: " + timestamp);
+//   //     }
+//   // }));
+
+// //  Print each element and its associated window
+//         // timestampedValuedPC.apply(ParDo.of(new DoFn<String, Void>() {
+//         //     @ProcessElement
+//         //     public void processElement(@Element String element, 
+//         //                                 @Element WindowedValue<String> windowedValue) {
+//         //         Instant timestamp = windowedValue.getTimestamp();
+//         //         // Extract window information (this prints all windows for the element)
+//         //         System.out.println("Element: " + element + ", Window: " + windowedValue.getWindows() + ", Timestamp: " + timestamp);
+//         //     }
+//         // }));
+        
+//     pipeline.run();
+//   }
+
+//   static class LogOutput<T> extends DoFn<T, T> {
+//     private static final Logger LOG = LoggerFactory.getLogger(LogOutput.class);
+//     private final String prefix;
+
+//     public LogOutput(String prefix) {
+//       this.prefix = prefix;
+//     }
+
+//     @ProcessElement
+//     public void processElement(ProcessContext c) throws Exception {
+//       LOG.info(prefix + c.element());
+//       c.output(c.element());
+//     }
+//   }
+// }
