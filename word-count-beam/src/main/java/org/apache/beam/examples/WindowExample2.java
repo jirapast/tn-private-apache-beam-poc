@@ -73,40 +73,30 @@ public class WindowExample2 {
     Pipeline pipeline = Pipeline.create(options);
 
     // [START main_section]
-    // Create some input data with timestamps
-    List<Double> inputData = Arrays.asList(5.0, 9.0, 7.0, 8.0, 3.0, 4.0, 3.0, 8.0, 1.0);
 
-    List<Long> timestamps = Arrays.asList(
-        Duration.standardSeconds(10).getMillis(),
-        Duration.standardSeconds(19).getMillis(),
-        Duration.standardSeconds(30).getMillis(),
-        Duration.standardSeconds(39).getMillis(),
-        Duration.standardSeconds(50).getMillis(),
-        Duration.standardSeconds(61).getMillis(),
-        Duration.standardSeconds(70).getMillis(),
-        Duration.standardSeconds(81).getMillis(),
-        Duration.standardSeconds(90).getMillis());
+    List<Integer> values = Arrays.asList(5, 7, 3, 4, 8, 3, 9, 8, 1);
 
-    PCollection<Double> items = pipeline.apply(Create.timestamped(inputData, timestamps));
+    List<Integer> et = Arrays.asList(2930, 1930, 1540, 1400, 2400, 400, 4130, 730, 740);
+    List<Integer> pt = Arrays.asList(0, 2000, 3400, 2000, 2700, 1300, 6000, 2000, 2100);
 
-    for (int i = 0; i < timestamps.size(); i++) { 
+    PCollection<Double> items = pipeline.apply(Create.timestamped(values, timestamps));
+
+    for (int i = 0; i < pt.size(); i++) { 
+      sleepWithoutException(pt.get(i));
+
       Instant processTime = Instant.now();
-      // ZonedDateTime pzonedDateTime = processTime.atZone(ZoneId.systemDefault());
-      // String ptimeString = pzonedDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
-      Instant eventTime = processTime.minus(timestamps.get(i));
-      // ZonedDateTime ezonedDateTime = processTime.atZone(ZoneId.systemDefault());
-      // String etimeString = ezonedDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+      Instant eventTime = processTime.minus(et.get(i));
 
-      long durationMillis = (processTime.getMillis() - eventTime.getMillis()) / 1000;
+      // System.out.println(processTime);
 
-      System.out.println(i + "___" + processTime + "___" + eventTime + "__" + durationMillis);
-
-      sleepWithoutException(1000);
+      long durationMillis = (processTime.getMillis() - eventTime.getMillis());
+      System.out.println(i + "___" + eventTime + "___" + processTime + "__" + durationMillis);
+      // System.out.println(i + "___" + processTime + "___" + eventTime + "__" + durationMillis);
     }
 
-    PCollection<Double> windowedItems =
-        items.apply(Window.into(FixedWindows.of(Duration.standardSeconds(20))));
+    // PCollection<Double> windowedItems =
+    //     items.apply(Window.into(FixedWindows.of(Duration.standardSeconds(20))));
 
     // windowedItems.apply(ParDo.of(
     //   new DoFn<Double, String>() {
@@ -128,9 +118,9 @@ public class WindowExample2 {
     // PCollection<Double> y = windowedItems.apply(Max.<Double>globally().withoutDefaults());
     // y.apply(ParDo.of(new LogOutput<>(">>>> ")));
 
-    System.out.print("----------------------------------------------------------------------");
-    PCollection<Double> z = windowedItems.apply(Sum.<Double>doublesGlobally().withoutDefaults());
-    z.apply(ParDo.of(new LogOutput<>(">>>> ")));
+    // System.out.print("----------------------------------------------------------------------");
+    // PCollection<Double> z = windowedItems.apply(Sum.<Double>doublesGlobally().withoutDefaults());
+    // z.apply(ParDo.of(new LogOutput<>(">>>> ")));
 
     pipeline.run();
   }
@@ -140,7 +130,7 @@ public class WindowExample2 {
             Thread.sleep(milliseconds);
         } catch (InterruptedException e) {
             // Handle interruption (e.g., log it or ignore)
-            System.out.println("Thread was interrupted");
+            // System.out.println("Thread was interrupted");
         }
     }
 
@@ -158,5 +148,18 @@ public class WindowExample2 {
       c.output(c.element());
     }
   }
+
+  // PCollection<LogEntry> unstampedLogs = ...;
+
+  PCollection<LogEntry> stampedLogs =
+      unstampedLogs.apply(ParDo.of(new DoFn<LogEntry, LogEntry>() {
+        public void processElement(@Element LogEntry element, OutputReceiver<LogEntry> out) {
+          // Extract the timestamp from log entry we're currently processing.
+          Instant logTimeStamp = extractTimeStampFromLogEntry(element);
+          // Use OutputReceiver.outputWithTimestamp (rather than
+          // OutputReceiver.output) to emit the entry with timestamp attached.
+          out.outputWithTimestamp(element, logTimeStamp);
+        }
+      }));
 
 }
