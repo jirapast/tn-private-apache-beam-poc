@@ -159,3 +159,16 @@ public class MinimalWordCount {
     // [END run_pipeline]
   }
 }
+
+  // p.apply(TextIO.read().from("gs://apache-beam-samples/shakespeare/kinglear.txt"))
+  //       .apply(
+  //           FlatMapElements.into(TypeDescriptors.strings())
+  //               .via((String line) -> Arrays.asList(line.split("[^\\p{L}]+"))))
+  //       .apply(Filter.by((String word) -> !word.isEmpty()))
+  //       .apply(Count.perElement())
+  //       .apply(
+  //           MapElements.into(TypeDescriptors.strings())
+  //               .via(
+  //                   (KV<String, Long> wordCount) ->
+  //                       wordCount.getKey() + ": " + wordCount.getValue()))
+  //       .apply(TextIO.write().to("wordcounts"));

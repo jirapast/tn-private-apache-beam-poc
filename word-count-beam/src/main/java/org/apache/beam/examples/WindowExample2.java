@@ -100,9 +100,10 @@ public class WindowExample2 {
 // ------------------------------------------------------------------------
 
     PipelineOptions options = PipelineOptionsFactory.create();
+    Pipeline pipeline = Pipeline.create(options);
+
     // options.setStreaming(true);
     // options.setRunner(DirectRunner.class);  // For local execution
-    Pipeline pipeline = Pipeline.create(options);
 
     PCollection<Void> empty = pipeline.apply(Create.empty(VoidCoder.of()));
 
@@ -120,12 +121,14 @@ public class WindowExample2 {
                 counter++;
                 Thread.sleep(2000);
               } } }));
+
 //  generatedIntegers.apply(ParDo.of(new DoFn<KV<Integer, Instant>, Void>() {
 //             @ProcessElement
 //             public void processElement(@Element KV<Integer, Instant> element) {
 //                 System.out.println(">>>> " + element.getKey() + " at " + element.getValue());
 //             }
 //         }));
+
  System.out.println("-------------------------------------------------");
 
 
