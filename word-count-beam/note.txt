@@ -1,0 +1,4 @@
+https://beam.apache.org/get-started/quickstart-java/
+
+gradle clean execute -DmainClass=org.apache.beam.examples.WordCount \
+    --args="--inputFile=sample.txt --output=counts"
